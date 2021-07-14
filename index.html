@@ -29,6 +29,8 @@
   <main class="container-fluid">
     <header>
       <h1 class="text-center">Farm Dashboard</h1>
+      <p class="text-center">Check the relative performance of different liquidity mining pools / yield farms</p>
+      <p class="text-center">Please be aware that this is experimental software still under development</p>
     </header>
 
     <!-- Part 1 Setting up Basic Actions and Status-->
@@ -58,19 +60,39 @@
               <!-- <h4 class="card-title">Basic Actions</h4> -->
               <button class="btn btn-primary btn-lg btn-block mb-3" id="connectButton" disabled></button>
               <!-- <button class="btn btn-primary btn-lg btn-block mb-3" id="getAccounts">Display my address</button> -->
-              <input placeholder="Enter LP contract address" type="value" id="LPcontract"> 
-              <input placeholder="Enter no of LP tokens" type="value" id="LPtokens"> 
-              <button class="btn btn-primary btn-lg btn-block mb-3" id="displayLPinfo">Display Liquidity Pool Info</button>
+              <input placeholder="Enter Masterchef contract address" type="value" id="MCcontract"> 
+              <input placeholder="Reward Token Address" type="value" id="rewardToken"> 
+              <button class="btn btn-primary btn-lg btn-block mb-3" id="displayLPinfo">Display Yield Farm Info</button>
               <!-- <button class="btn btn-primary btn-lg btn-block mb-3" id="getUSDBalances">Display USD balances</button> -->
               <!-- <p class="info-text alert alert-secondary">Your account no: <span id="getAccountsResult"></span></p> -->
-              <p class="info-text alert alert-secondary">Liquidity pool: <span id="LP_name"></span>  </p>
-              <p class="info-text alert alert-secondary">Reserves Token0: <span id="Reserves_token0"></span>  </p>
-              <p class="info-text alert alert-secondary">Reserves Token1: <span id="Reserves_token1"></span>  </p>
-              <p class="info-text alert alert-secondary">Total Supply: <span id="totalSupplyLP"></span></p>
+              <!-- <p class="info-text alert alert-secondary">LP pool 1 address: <span id="LP_name"></span>  </p>
+              <p class="info-text alert alert-secondary">LP pool name: <span id="Reserves_token0"></span>  </p>
+              <p class="info-text alert alert-secondary">reward multiple: <span id="Reserves_token1"></span>  </p>
+              <p class="info-text alert alert-secondary">Deposit fee: <span id="totalSupplyLP"></span></p>
               <p class="info-text alert alert-secondary">Token0/Token1: <span id="displayExchangeRate"></span>  </p>
               <p class="info-text alert alert-secondary">USD value of LP: <span id="TOTALInUsd"></span> </p>
-              <p class="info-text alert alert-secondary">USD value of my share: <span id="myshareInUsd"></span> </p>
-
+              <p class="info-text alert alert-secondary">USD value of my share: <span id="myshareInUsd"></span> </p> -->
+              <table style="width:100%">
+                <tr>
+                  <th>Pool:</th>
+                  <th>Deposit Fee:</th>
+                  <th>Token Price:</th>
+                  <!-- <th>Reward Price:</th> -->
+                  <!-- <th>Daily Emission:</th> -->
+                </tr>
+                <tr>
+                  <td><span id="poolName"></span></td>
+                  <td><span id="depositFee"></td>
+                  <td><span id="tokenPrice"></td>
+                  <!-- <td><span id="totalSupplyLP"></td> -->
+                  <!-- <td><span id="Reserves_token1"></td> -->
+                </tr>
+                <!-- <tr>
+                  <td>Eve</td>
+                  <td>Jackson</td>
+                  <td>94</td>
+                </tr> -->
+              </table>
               <!-- <button class="btn btn-primary btn-lg btn-block mb-3" id="rebalance">Rebalance</button> -->
             </div>
           </div>

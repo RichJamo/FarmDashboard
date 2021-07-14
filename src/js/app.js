@@ -1,11 +1,14 @@
-const SS_YELD_MATIC_ADDRESS = "0xdD650C8d274474FF1af1152B3B27f2702AcA8a98"
+const PolyPup_Bone_Masterchef = "0x9DcB2D5e7b5212fAF98e4a152827fd76bD55f68b"
 const WS_FISH_MATIC_ADDRESS = "0x44825bf3b74695bd72ed247d62dd755e67b7ed87"
 const WETH_ADDRESS = "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
 const WMATIC_ADDRESS = "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
+const USDC_ADDRESS = "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"
 
 const QUICKSWAP_ROUTER = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"
 const SUSHISWAP_ROUTER = "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
 const WAULT_ROUTER = "0x3a1D87f206D12415f5b0A33E786967680AAb4f6d"
+
+const QUICKSWAP_FACTORY = "0x5757371414417b8C6CAad45bAeF941aBc7d3Ab32"
 
 const MATIC_USD_ORACLE = "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0"
 const BTC_USD_ORACLE = "0xc907E116054Ad103354f2D350FD2514433D57F6f"
@@ -71,28 +74,25 @@ function startApp(provider) {
     // balance = await provider.getBalance(user); //returns a BigNumber
     // console.log(balance.toString());
 
-    var LP_contract = $("#LPcontract").val()
-    var my_LP_tokens = $("#LPtokens").val()
+    var MC_contract = $("#MCcontract").val()
+    var poolInfo = await getPoolAddress(MC_contract, 1)
+    var rewardTokenAddress = $("#rewardToken").val()
 
-    var token_addresses = await getTokenAddresses(LP_contract);
+    var token_addresses = await getTokenAddresses(poolInfo[0]);
     var token0_symbol = await getTokenSymbol(token_addresses[0]);
     var token1_symbol = await getTokenSymbol(token_addresses[1]);
-    var token0_decimals = await getDecimals(token_addresses[0]);
-    var token1_decimals = await getDecimals(token_addresses[1]);
-    var pair_decimals = await getDecimals(LP_contract);
+    // var token0_decimals = await getDecimals(token_addresses[0]);
+    // var token1_decimals = await getDecimals(token_addresses[1]);
+    // var pair_decimals = await getDecimals(LP_contract);
 
-    console.log(token0_symbol);
+    poolName.innerHTML = `${token0_symbol} - ${token1_symbol}`;
+    depositFee.innerHTML = `${poolInfo[4]}` || 'Not able to get accounts';
 
-    LP_name.innerHTML = `${token0_symbol}-${token1_symbol}`;
+    var tokenPriceUSD = await getUSDTokenPrice(rewardTokenAddress);
 
-    reserves = await getReserves(LP_contract);
-    console.log(reserves)
-    Reserves_token0.innerHTML = `${parseFloat(ethers.utils.formatUnits(reserves[0], token0_decimals)).toFixed(4)} ${token0_symbol}` || 'Not able to get accounts'; //what if reserves undefined?
-    Reserves_token1.innerHTML = `${parseFloat(ethers.utils.formatUnits(reserves[1], token1_decimals)).toFixed(4)} ${token1_symbol}` || 'Not able to get accounts';
-
-    total_supply_LP = await getTotalSupply(LP_contract);
-    console.log(total_supply_LP)
-    totalSupplyLP.innerHTML = `${parseFloat(ethers.utils.formatUnits(total_supply_LP, pair_decimals)).toFixed(6)} LP tokens` || 'Not able to get accounts';
+    // total_supply_LP = await getTotalSupply(LP_contract);
+    // console.log(total_supply_LP)
+    tokenPrice.innerHTML = `${tokenPriceUSD}` || 'Not able to get accounts';
 
     bignumber0 = ethers.utils.parseUnits("1.0", token0_decimals);
     bignumber1 = ethers.utils.parseUnits("1.0", token1_decimals);
@@ -365,6 +365,22 @@ $(document).ready(function () { //when the document loads
 //   }
 // }
 
+async function getUSDTokenPrice (token_address) {
+  //find pair address for reward token-USDC 
+  var factory = new ethers.Contract(QUICKSWAP_FACTORY, factory_abi, provider);
+  var pairAddress = await factory.getPair(USDC_ADDRESS, token_address);
+  
+  //get reserves of each
+  var pair = new ethers.Contract(pairAddress, pair_abi, provider);
+  var reserves = await pair.getReserves();
+
+  var router = new ethers.Contract(QUICKSWAP_ROUTER, ROUTER_ABI, provider);
+  var rewardPrice = await router.getAmountIn(1, reserves[1], reserves[0])
+  rewardPrice = 1/rewardPrice;
+
+  return rewardPrice;
+}
+
 async function getTotalSupply(pair_address) {
   // create a new instance of a contract - in web3.js >1.0.0, will have to use "new web3.eth.Contract" (uppercase C)
   var pairContract = new ethers.Contract(pair_address, pair_abi, signer)
@@ -397,6 +413,18 @@ async function getTokenAddresses(pair_address) {
     var token0_address = await pairContract.token0();
     var token1_address = await pairContract.token1();
     return [token0_address, token1_address];
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+async function getPoolAddress(MC_address, poolNumber) {
+  // create a new instance of a contract - in web3.js >1.0.0, will have to use "new web3.eth.Contract" (uppercase C)
+  var MCContract = new ethers.Contract(MC_address, masterchef_abi, signer)
+  // get the balance of our user in that token
+  try {
+    var pool_address = await MCContract.poolInfo(poolNumber);
+    return pool_address;
   } catch (error) {
     console.log(error)
   }
